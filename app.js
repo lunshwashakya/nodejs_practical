@@ -7,7 +7,8 @@ async function getUrlContent() {
     const htmlBody = await response.text();
     const document = parse(htmlBody);
     console.log({document});
-    const list = document.querySelector(".eihuid6v")
+    const list = document.querySelector(".eihuid6v");
+    console.log(list);
     
 }
 
