@@ -1,12 +1,12 @@
 import { parse } from 'node-html-parser';
 import fs from 'fs';
 
-const baseUrl = "https://www.seek.com.au/barber-jobs/in-Darwin-NT-0800?page=";
+const url = "https://www.seek.com.au/web-developer-no-experience-jobs/in-Sydney-NSW-2000";
 
 async function writeToFile(data) {
     console.log('Writing data to file...');
     fs.writeFileSync('tmp.html', data);
-    console.log('Done');
+    console.log('Done')
 }
 
 function writeDataToCSV(data) {
@@ -16,49 +16,34 @@ function writeDataToCSV(data) {
     });
     console.log('Writing data to CSV...');
     fs.writeFileSync('jobs.csv', csvData);
-    console.log('Done');
+    console.log('Done')
 }
 
-async function getAllPages() {
-    let allJobListings = [];
-    let page = 1;
+async function getUrlContent() {
+    const response =  await fetch(url);
+    const htmlBody = await response.text();
+    const document = parse(htmlBody);
+    const list = document.querySelectorAll(".gepq850.eihuid5b.eihuidhf.eihuid6v");
+    list.splice(0, 3);
+    writeToFile(list.toString());
 
-    while (true) {
-        const url = `${baseUrl}${page}`;
-        console.log(`Fetching data from: ${url}`);
-        
-        const response = await fetch(url);
-        const htmlBody = await response.text();
-        const document = parse(htmlBody);
-
-        const list = document.querySelectorAll(".gepq850.eihuid5b.eihuidhf.eihuid6v");
-        console.log(`Items found on page ${page}:`, list.length);
-
-
-        if (list.length === 0) {
-            console.log('No more job listings found. Stopping.');
-            break;
+    let jobListingArray =  list.map(item => {
+        let jobTitle = item.querySelector("[data-testid='job-card-title']");
+        let company = item.querySelector("a[data-type='company']");
+        let details = item.querySelector("[data-testid='job-card-teaser']");
+      
+        return {
+            jobTitle: jobTitle?.text,
+            company: company?.text,
+            details: details?.text
         }
+    });
 
-        let jobListingArray = list.map(item => {
-            let jobTitle = item.querySelector("[data-testid='job-card-title']");
-            let company = item.querySelector("a[data-type='company']");
-            let details = item.querySelector("[data-testid='job-card-teaser']");
+    let filteredJobListing = jobListingArray.filter(job => job.jobTitle && job.company && job.details);
 
-            return {
-                jobTitle: jobTitle?.text.trim(),
-                company: company?.text.trim(),
-                details: details?.text.trim()
-            };
-        });
-
-        let filteredJobListing = jobListingArray.filter(job => job.jobTitle && job.company && job.details);
-        allJobListings = allJobListings.concat(filteredJobListing);
-
-        page++;
-    }
-
-    writeDataToCSV(allJobListings);
+    writeDataToCSV(filteredJobListing);
+   
 }
 
-getAllPages();
+
+getUrlContent();
