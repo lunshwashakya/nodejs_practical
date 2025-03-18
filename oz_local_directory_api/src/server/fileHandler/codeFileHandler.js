@@ -1,13 +1,16 @@
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-async function readCodesFromFile() {
-    const data = fs.readFileSync('.../data/codes.json');
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function readCodesFromFile() {
+    const data = fs.readFileSync(`${__dirname}/../data/codes.json`);
     return JSON.parse(data);
 }
 
-async function writeToCodeFile() {
-    fs.writeFileSync('.../data/codes.json', data);
+export async function writeToCodesFile(data) {
+    fs.writeFileSync( `${__dirname}/../data/codes.json`, JSON.stringify(data));
 }
-
-
-export default writeToCodeFile();

@@ -1,7 +1,7 @@
 import { parse } from 'node-html-parser';
 import fs from 'fs';
 
-const url = "https://www.seek.com.au/ai-engineer-jobs";
+const url = "https://www.seek.com.au/ai-engineer-jobs/in-Sydney-NSW-2000";
 
 async function writeToFile(data) {
     console.log('Writing data to file...');
@@ -19,7 +19,8 @@ function writeDataToCSV(data) {
     console.log('Done')
 }
 
-async function getFilteredJonListing(url) {
+
+async function getFilteredJobListing(url) {
     const response =  await fetch(url);
     const htmlBody = await response.text();
     const document = parse(htmlBody);
@@ -40,26 +41,24 @@ async function getFilteredJonListing(url) {
     });
 
     let filteredJobListing = jobListingArray.filter(job => job.jobTitle && job.company && job.details);
-
     return filteredJobListing;
 }
 
 async function getUrlContent() {
     let dataExists = true;
     let page = 1;
-    let allJobListing =[];
+    let allJobListing = [];
     while(dataExists) {
-        let requestUrl = `${url}?page=${page}`;
-        let filteredJobListing = await getFilteredJonListing(requestUrl);
-        if(filteredJobListing && (filteredJobListing.length > 0)){
+        let requestUrl =  `${url}?page=${page}`;
+        let filteredJobListing = await getFilteredJobListing(requestUrl);
+        if(filteredJobListing && (filteredJobListing.length > 0)) {
             page++;
-            allJobListing = [...allJobListing, ...filteredJobListing]
+            allJobListing = [...allJobListing, ...filteredJobListing];
         }
         else {
             dataExists = false;
         }
     }
-
 
     writeDataToCSV(allJobListing);
 }
