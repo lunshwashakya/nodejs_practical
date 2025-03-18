@@ -44,8 +44,6 @@ async function getFilteredJonListing(url) {
     return filteredJobListing;
 }
 
-
-
 async function getUrlContent() {
     let dataExists = true;
     let page = 1;
